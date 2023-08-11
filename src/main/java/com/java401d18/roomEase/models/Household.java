@@ -130,4 +130,6 @@ public class Household {
     public void setCurrentOccupants(int currentOccupants) {
         this.currentOccupants = currentOccupants;
     }
+
+
 }

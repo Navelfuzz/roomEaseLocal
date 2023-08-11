@@ -1,10 +1,6 @@
 package com.java401d18.roomEase.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -25,6 +21,9 @@ public class AppUser {
 
     @ManyToMany(mappedBy = "members")
     private List<Household> households = new ArrayList<>();
+
+    @OneToMany(mappedBy = "toUser", cascade = CascadeType.ALL)
+    private List<Invitation> receivedInvitations = new ArrayList<>();
 
     // Constructors
     public AppUser() {
@@ -113,5 +112,15 @@ public class AppUser {
     public void setHouseholds(List<Household> households) {
         this.households = households;
     }
+
+    public List<Invitation> getReceivedInvitations() {
+        return receivedInvitations;
+    }
+
+    public void setReceivedInvitations(List<Invitation> receivedInvitations) {
+        this.receivedInvitations = receivedInvitations;
+    }
+
+
 
 }
