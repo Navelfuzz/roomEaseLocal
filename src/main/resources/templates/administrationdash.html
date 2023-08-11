@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"/>
+
+    <style>
+        .approved {
+            background-color: green;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .approved i {
+            margin-right: 5px;
+        }
+    </style>
+
+</head>
+<body>
+<main class="container">
+    <h1>Admin Dashboard</h1>
+
+    <section>
+        <h2>Household</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Household Id</th>
+                <th>Street Number</th>
+                <th>Street Name</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Zip Code</th>
+                <th>Max Occupants</th>
+                <th>Current Occupants</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Add the "Create Household" button with the onclick attribute -->
+            <tr>
+                <td colspan="8">
+                    <button type="button" class="submit" onclick="location.href='newhousehold.html';">Create Household</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+
+    <section>
+        <h2>Residents</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>User Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Loop through existing household members -->
+            <tr th:each="user : ${existingUsers}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.firstName}"></td>
+                <td th:text="${user.lastName}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.telephoneNumber}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>Available Users</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>User Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Loop through users without a household ID -->
+            <tr th:each="user : ${availableUsers}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.firstName}"></td>
+                <td th:text="${user.lastName}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.telephoneNumber}"></td>
+                <td>
+                    <!-- Show "Add User" button for available users -->
+                    <button type="button" class="submit" th:onclick="'inviteUser(\'' + ${user.id} + '\');'">Add User</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <script>
+        function inviteUser(userId) {
+            // Replace this with your logic to update the page and send the userId to the server
+            // Once the user is added to the household, remove the "Add User" button
+        }
+    </script>
+</body>
+</html>
+
+
+
+<!--<head>-->
+<!--    <title>Administration Dashboard</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>Administration Dashboard</h1>-->
+
+<!--&lt;!&ndash; Create Household Button &ndash;&gt;-->
+<!--<a href="newhousehold.html"><button>Create Household</button></a><br><br>-->
+
+<!--&lt;!&ndash; Household Table &ndash;&gt;-->
+<!--<table border="1">-->
+<!--    <tr>-->
+<!--        <th>Household ID</th>-->
+<!--        <th>Street Number</th>-->
+<!--        <th>Street Name</th>-->
+<!--        <th>City</th>-->
+<!--        <th>State</th>-->
+<!--        <th>Zip</th>-->
+<!--        <th>Max Occupants</th>-->
+<!--        <th>Current Occupants</th>-->
+<!--    </tr>-->
+<!--    &lt;!&ndash; Sample household row (replace with dynamic data) &ndash;&gt;-->
+<!--    <tr>-->
+<!--        <td>RandomID123</td>-->
+<!--        <td>123</td>-->
+<!--        <td>Main St</td>-->
+<!--        <td>Cityville</td>-->
+<!--        <td>Stateville</td>-->
+<!--        <td>12345</td>-->
+<!--        <td>4</td>-->
+<!--        <td>2</td>-->
+<!--    </tr>-->
+<!--    &lt;!&ndash; Add more household rows as needed &ndash;&gt;-->
+<!--</table><br>-->
+
+<!--&lt;!&ndash; Add Residents Button &ndash;&gt;-->
+<!--<a href="addresidents.html"><button>Add Residents</button></a>-->
+
+<!--</body>-->
+<!--</html>-->

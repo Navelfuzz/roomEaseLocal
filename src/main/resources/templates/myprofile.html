@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"/>
+
+    <style>
+        .approved {
+            background-color: green;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .approved i {
+            margin-right: 5px;
+        }
+    </style>
+
+</head>
+<body>
+<main class="container">
+    <h1>My Profile</h1>
+
+    <section th:if="${invitations}">
+        <h2>Invitations</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>From</th>
+                <th>Household Administrator</th>
+                <th>Household Id</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Loop through invitations -->
+            <tr th:each="invitation : ${invitations}">
+                <td th:text="${invitation.fromUser.firstName + ' ' + invitation.fromUser.lastName}"></td>
+                <td th:text="${invitation.household.admin.firstName + ' ' + invitation.household.admin.lastName}"></td>
+                <td th:text="${invitation.household.householdId}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+
+    <section>
+        <h2>My Household</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Household Id</th>
+                <th>Street Number</th>
+                <th>Street Name</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Zip Code</th>
+                <th>Max Occupants</th>
+                <th>Current Occupants</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Loop through user's household (assuming the user object contains a reference to their household) -->
+            <tr th:if="${user.household}" th:object="${user.household}">
+                <td th:text="${household.householdId}"></td>
+                <td th:text="${household.streetNumber}"></td>
+                <td th:text="${household.streetName}"></td>
+                <td th:text="${household.city}"></td>
+                <td th:text="${household.state}"></td>
+                <td th:text="${household.zip}"></td>
+                <td th:text="${household.maxOccupants}"></td>
+                <td th:text="${household.currentOccupants}"></td>
+            </tr>
+            </tbody>
+            <!-- Footer section for joining a household -->
+            <tfoot>
+            <tr th:unless="${user.household}">
+                <td colspan="8">
+                    <input type="text" id="joinHouseholdId" placeholder="Enter Household ID">
+                    <button type="button" class="submit" onclick="joinHousehold();">Join Household</button>
+                </td>
+            </tr>
+            </tfoot>
+        </table>
+    </section>
+
+    <script>
+        function joinHousehold() {
+            // Replace this with your logic to join the household
+            var householdId = document.getElementById("joinHouseholdId").value;
+            console.log("Joining household with ID: " + householdId);
+
+            // You can use AJAX to send the householdId to the server and update the page accordingly
+        }
+    </script>
+
+    <section>
+        <h2>My Roommates</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>User Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Admin</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Loop through existing household members (except the current user) -->
+            <tr th:each="user : ${roommates}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.firstName}"></td>
+                <td th:text="${user.lastName}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.telephoneNumber}"></td>
+                <td>
+                    <span th:if="${user.isAdmin}">Admin</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+</body>
+</html>
