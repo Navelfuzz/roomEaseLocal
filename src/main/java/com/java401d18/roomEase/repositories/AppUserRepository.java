@@ -5,10 +5,12 @@ import com.java401d18.roomEase.models.Household;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
+
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     AppUser findByUsername(String username);
+
     List<AppUser> findByHousehold(Household household);
-    List<AppUser> findNonApprovedUsersByHousehold(Household userHousehold);
-    List<AppUser> findNonAdminUsersByHousehold(Household userHousehold);
+
+
 
 }

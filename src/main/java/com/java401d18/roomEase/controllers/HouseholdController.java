@@ -35,7 +35,7 @@ public class HouseholdController {
     }
 
     @PostMapping("/join-household")
-    public RedirectView joinHousehold(@RequestParam String householdId, Principal principal) {
+    public RedirectView joinHousehold(@RequestParam Long householdId, Principal principal) {
         String username = principal.getName();
         AppUser user = appUserRepository.findByUsername(username);
 

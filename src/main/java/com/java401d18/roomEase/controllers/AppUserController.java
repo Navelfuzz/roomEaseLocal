@@ -1,21 +1,23 @@
 package com.java401d18.roomEase.controllers;
 
 import com.java401d18.roomEase.models.AppUser;
-import com.java401d18.roomEase.repositories.AppUserRepository;
 import com.java401d18.roomEase.models.Household;
+import com.java401d18.roomEase.repositories.AppUserRepository;
 import com.java401d18.roomEase.repositories.HouseholdRepository;
-import com.java401d18.roomEase.models.Invitation;
 import com.java401d18.roomEase.repositories.InvitationRepository;
-
-import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.view.RedirectView;
+
 import java.security.Principal;
 import java.util.List;
+
+
 
 
 @Controller
@@ -32,6 +34,10 @@ public class AppUserController {
     @Autowired
     InvitationRepository invitationRepository;
 
+    @GetMapping("/")
+    String getHomePage() {
+        return "index";
+    }
 
     @GetMapping("/login")
     public String getLogin() {
@@ -44,19 +50,31 @@ public class AppUserController {
     }
 
     @PostMapping("/registration")
-    public RedirectView postRegistration(@RequestParam String firstName,
-                                         @RequestParam String lastName,
-                                         @RequestParam String username,
-                                         @RequestParam String password,
-                                         @RequestParam String email,
-                                         @RequestParam String telephoneNumber,
-                                         @RequestParam(required = false) boolean isAdmin) {
-        AppUser user = new AppUser(firstName, lastName, username, passwordEncoder.encode(password), email, isAdmin, telephoneNumber);
+    public RedirectView postRegistration(String firstName, String lastName, String username, String password, String email, Boolean isAdmin, String telephoneNumber, Long householdId) {
+        AppUser user = new AppUser();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEmail(email);
+        user.setTelephoneNumber(telephoneNumber);
+
+        Household selectedHousehold = householdRepository.findById(householdId).orElse(null);
+        List<AppUser> householdMembers = appUserRepository.findByHousehold(selectedHousehold);
+
+        if(householdMembers == null || householdMembers.isEmpty()){
+            user.setAdmin(true);
+            user.setIsApproved(true);
+        } else {
+            user.setAdmin(false);
+            user.setIsApproved(false);
+        }
+        user.setHousehold(selectedHousehold);
         appUserRepository.save(user);
 
-        // Redirect to login page
         return new RedirectView("/login");
     }
+
 
     @GetMapping("/profile")
     public String getProfile(Model model, Principal principal) {
@@ -66,63 +84,25 @@ public class AppUserController {
         return "profile";
     }
 
-    // Add more methods for other functionalities...
-    @PostMapping("/send-invitation")
-    public String sendInvitation(@RequestParam Long fromUserId, @RequestParam Long toUserId, @RequestParam Long householdId) {
-        AppUser fromUser = appUserRepository.findById(fromUserId).orElse(null);
-        AppUser toUser = appUserRepository.findById(toUserId).orElse(null);
-        Household household = householdRepository.findById(householdId).orElse(null);
-
-        if (fromUser != null && toUser != null && household != null) {
-            Invitation invitation = new Invitation(fromUser, toUser, household);
-            toUser.getReceivedInvitations().add(invitation);
-            appUserRepository.save(toUser);
-        }
-
-        return "redirect:/profile"; // Redirect to user's profile page
-    }
-
-    @PostMapping("/accept-invitation")
-    public String acceptInvitation(@RequestParam Long invitationId) {
-        Invitation invitation = invitationRepository.findById(invitationId).orElse(null);
-
-        if (invitation != null) {
-            // Handle updating user's household or any other related logic
-            invitationRepository.delete(invitation);
-        }
-
-        return "redirect:/profile"; // Redirect to user's profile page
-    }
-
-//    @PostMapping("/reject-invitation")
-//    public String rejectInvitation(@RequestParam Long invitationId) {
-//        Invitation invitation = invitationRepository.findById(invitationId).orElse(null);
+//    @GetMapping("/admin")
+//    public String getAdministrationDash(Model model, Principal principal){
+//        if(principal != null){
+//            String username = principal.getName();
+//            AppUser currentUser = appUserRepository.findByUsername(username);
 //
-//        if (invitation != null) {
-//            invitationRepository.delete(invitation); // Remove the invitation from user's receivedInvitations
+//            if(currentUser.isAdmin()) {
+//                Household userHousehold = currentUser.getHouseholds();
+//                List<AppUser> nonApprovedUsers = appUserRepository.findNonApprovedUsersByHousehold(userHousehold);
+//                List<AppUser> nonAdminUsers = appUserRepository.findNonAdminUsersByHousehold(userHousehold);
+//
+//                model.addAttribute("nonApprovedUsers", nonApprovedUsers);
+//                model.addAttribute("nonAdminUsers", nonAdminUsers);
+//
+//                return "admin";
+//            } else {
+//                return "redirect:/profile";
+//            }
 //        }
-//
-//        return "redirect:/profile"; // Redirect to user's profile page
 //    }
-    @GetMapping("/administrationDash")
-    public String getAdministrationDash(Model model, Principal principal){
-        if(principal != null){
-            String username = principal.getName();
-            AppUser currentUser = appUserRepository.findByUsername(username);
-
-            if(currentUser.isAdmin()) {
-                Household userHousehold = currentUser.getHouseholds();
-                List<AppUser> nonApprovedUsers = appUserRepository.findNonApprovedUsersByHousehold(userHousehold);
-                List<AppUser> nonAdminUsers = appUserRepository.findNonAdminUsersByHousehold(userHousehold);
-
-                model.addAttribute("nonApprovedUsers", nonApprovedUsers);
-                model.addAttribute("nonAdminUsers", nonAdminUsers);
-
-                return "administrationDash";
-            } else {
-                return "redirect:/profile";
-            }
-        }
-    }
 
 }

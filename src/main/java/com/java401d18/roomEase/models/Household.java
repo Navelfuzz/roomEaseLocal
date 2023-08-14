@@ -1,23 +1,14 @@
 package com.java401d18.roomEase.models;
 
 import jakarta.persistence.*;
-import java.util.List;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Household {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    private AppUser admin;
-
-    @ManyToMany
-    private List<AppUser> members = new ArrayList<>();
-
-    private String householdId;
+    private Long householdId;
     private String streetNumber;
     private String streetName;
     private String city;
@@ -27,11 +18,13 @@ public class Household {
     private int currentOccupants;
 
     // Constructors
+    @OneToMany(mappedBy = "household")
+    private List<AppUser> users;
+
     public Household() {
     }
 
-    public Household(AppUser admin, String householdId, String streetNumber, String streetName, String city, String state, String zip, int maxOccupants) {
-        this.admin = admin;
+    public Household(Long householdId, String streetNumber, String streetName, String city, String state, String zip, int maxOccupants, List<AppUser> users) {
         this.householdId = householdId;
         this.streetNumber = streetNumber;
         this.streetName = streetName;
@@ -40,38 +33,14 @@ public class Household {
         this.zip = zip;
         this.maxOccupants = maxOccupants;
         this.currentOccupants = 0; // Assuming newly created household has no occupants initially
+        this.users = users;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public AppUser getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(AppUser admin) {
-        this.admin = admin;
-    }
-
-    public List<AppUser> getMembers() {
-        return members;
-    }
-
-    public void setMembers(List<AppUser> members) {
-        this.members = members;
-    }
-
-    public String getHouseholdId() {
+    public Long getHouseholdId() {
         return householdId;
     }
-
-    public void setHouseholdId(String householdId) {
+    public void setHouseholdId(Long householdId) {
         this.householdId = householdId;
     }
 
@@ -131,5 +100,12 @@ public class Household {
         this.currentOccupants = currentOccupants;
     }
 
+    public List<AppUser> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<AppUser> users) {
+        this.users = users;
+    }
 
 }

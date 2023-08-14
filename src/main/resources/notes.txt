@@ -2,14 +2,10 @@ package com.java401d18.roomEase.models;
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import java.util.ArrayList;
 
 @Entity
 public class AppUser implements UserDetails {
@@ -25,6 +21,12 @@ public class AppUser implements UserDetails {
     private boolean isAdmin;
     private String telephoneNumber;
 
+    @ManyToMany(mappedBy = "members")
+    private List<Household> households = new ArrayList<>();
+
+    @OneToMany(mappedBy = "toUser", cascade = CascadeType.ALL)
+    private List<Invitation> receivedInvitations = new ArrayList<>();
+
     // Constructors
     public AppUser() {
     }
@@ -39,17 +41,7 @@ public class AppUser implements UserDetails {
         this.telephoneNumber = telephoneNumber;
     }
 
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    private Set<Role> roles;
-
-    @ManyToOne
-    @JoinColumn(name = "household_id")
-    private Household household;
-
-//    @OneToMany(mappedBy = "toUser", cascade = CascadeType.ALL)
-//    private List<Invitation> receivedInvitations;
-
-
+    // Getters and Setters
     // Getters and Setters
     public Long getId() {
         return id;
@@ -115,69 +107,22 @@ public class AppUser implements UserDetails {
         this.telephoneNumber = telephoneNumber;
     }
 
-    public Household getHousehold() {
-        return household;
+    public List<Household> getHouseholds() {
+        return households;
     }
 
-    public void setHousehold(Household household) {
-        this.household = household;
+    public void setHouseholds(List<Household> households) {
+        this.households = households;
     }
 
-    public Boolean getIsApproved() {
-        return isApproved;
+    public List<Invitation> getReceivedInvitations() {
+        return receivedInvitations;
     }
 
-    public void setIsApproved(Boolean approved) {
-        this.isApproved = approved;
+    public void setReceivedInvitations(List<Invitation> receivedInvitations) {
+        this.receivedInvitations = receivedInvitations;
     }
 
-    //    public Set<Role> getRoles() {
-//        return roles;
-//    }
-
-//    public List<Household> getHouseholds() {
-//        return households;
-//    }
-//
-//    public void setHouseholds(List<Household> households) {
-//        this.households = households;
-//    }
-
-//    public List<Invitation> getReceivedInvitations() {
-//        return receivedInvitations;
-//    }
-//
-//    public void setReceivedInvitations(List<Invitation> receivedInvitations) {
-//        this.receivedInvitations = receivedInvitations;
-//    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return false;
-    }
-
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                .collect(Collectors.toSet());
-    }
 
 
 }
