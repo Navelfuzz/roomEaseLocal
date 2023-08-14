@@ -1,10 +1,10 @@
 package com.java401d18.roomEase.controllers;
 
 import com.java401d18.roomEase.models.AppUser;
-import com.java401d18.roomEase.models.Household;
 import com.java401d18.roomEase.repositories.AppUserRepository;
 import com.java401d18.roomEase.repositories.HouseholdRepository;
 import com.java401d18.roomEase.repositories.InvitationRepository;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,10 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.view.RedirectView;
 
 import java.security.Principal;
-import java.util.List;
 
 
 
@@ -49,31 +47,32 @@ public class AppUserController {
         return "registration";
     }
 
-    @PostMapping("/registration")
-    public RedirectView postRegistration(String firstName, String lastName, String username, String password, String email, Boolean isAdmin, String telephoneNumber, Long householdId) {
-        AppUser user = new AppUser();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setEmail(email);
-        user.setTelephoneNumber(telephoneNumber);
-
-        Household selectedHousehold = householdRepository.findById(householdId).orElse(null);
-        List<AppUser> householdMembers = appUserRepository.findByHousehold(selectedHousehold);
-
-        if(householdMembers == null || householdMembers.isEmpty()){
-            user.setAdmin(true);
-            user.setIsApproved(true);
-        } else {
-            user.setAdmin(false);
-            user.setIsApproved(false);
+    public void authWithHttpServletRequest(String username, String password){
+        try{
+            request.login(username, password);
+        } catch (ServletException e){
+            System.out.println("Error authenticating user with servlet");
+            e.printStackTrace();
         }
-        user.setHousehold(selectedHousehold);
-        appUserRepository.save(user);
-
-        return new RedirectView("/login");
     }
+
+    @PostMapping("/registration")
+    public String registerUser(String firstName, String lastName, String username, String password, String email, String phoneNumber, Boolean isAdmin, String telephoneNumber, Model model){
+        AppUser existingUser = appUserRepository.findByUsername(username);
+        if (existingUser != null){
+            model.addAttribute("error", "Username already exists");
+            return "registration";
+        }
+
+        AppUser appUser = new AppUser(firstName, lastName, username, email, phoneNumber, isAdmin, telephoneNumber);
+        String encryptedPassword = passwordEncoder.encode(password);
+        appUser.setPassword(encryptedPassword);
+        appUserRepository.save(appUser);
+
+        authWithHttpServletRequest(username, password);
+        return "redirect:/profile";
+    }
+
 
 
     @GetMapping("/profile")
@@ -83,6 +82,8 @@ public class AppUserController {
         model.addAttribute("user", user);
         return "profile";
     }
+
+
 
 //    @GetMapping("/admin")
 //    public String getAdministrationDash(Model model, Principal principal){
